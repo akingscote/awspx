@@ -43,7 +43,7 @@ class IngestionManager(Elements):
 
             identity = self.console.task(
                 "Awaiting response to sts:GetCallerIdentity",
-                session.client('sts').get_caller_identity,
+                session.client(service_name = 'sts', endpoint_url=os.environ['ENDPOINT_URL']).get_caller_identity,
                 done=lambda r: '\n'.join([
                     f"Identity: {r['Arn']}",
                     f"Services: {', '.join([s.__name__ for s in services])}",
@@ -488,7 +488,7 @@ class Ingestor(Elements):
                                   f"Only the following services are supported: {', '.join(self.session.get_available_resources())}.")
 
         self.client = SessionClientWrapper(self.session.client(
-            self.__class__.__name__.lower()),
+            self.__class__.__name__.lower(), endpoint_url=os.environ['ENDPOINT_URL']),
             console=self.console)
 
         # If no resources to ingest have been specified, assume all

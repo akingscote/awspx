@@ -110,7 +110,7 @@ def handle_ingest(args):
 
         if args.mfa_device:
 
-            session_token = session.client('sts').get_session_token(
+            session_token = session.client(service='sts', endpoint_url=os.environ['ENDPOINT_URL']).get_session_token(
                 SerialNumber=args.mfa_device,
                 TokenCode=args.mfa_token,
                 DurationSeconds=args.mfa_duration
