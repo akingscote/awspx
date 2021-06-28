@@ -1,6 +1,7 @@
 FROM neo4j:3.5.13
 
 COPY . /opt/awspx
+COPY startup.sh /
 WORKDIR /opt/awspx
 
 ENV NEO4J_AUTH=neo4j/password
@@ -28,3 +29,5 @@ RUN cd /opt/awspx/www && npm install
 
 VOLUME /opt/awspx/data
 EXPOSE 7373 7474 7687 80 
+
+ENTRYPOINT [ "/startup.sh" ]
