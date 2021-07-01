@@ -24,7 +24,8 @@ from lib.graph.edges import (Action, Associative,
 
 from lib.graph.nodes import Generic, Resource
 
-
+# enable debug
+boto3.set_stream_logger('')
 class IngestionManager(Elements):
 
     zip = None
@@ -43,7 +44,8 @@ class IngestionManager(Elements):
 
             identity = self.console.task(
                 "Awaiting response to sts:GetCallerIdentity",
-                session.client(service_name = 'sts', endpoint_url=os.environ['ENDPOINT_URL']).get_caller_identity,
+                session.client(service_name = 'sts', region_name="eu-west-1", aws_access_key_id="mock_access_key",
+                aws_secret_access_key="mock_secret_key", aws_session_token="mock_token", endpoint_url=os.environ['ENDPOINT_URL']).get_caller_identity,
                 done=lambda r: '\n'.join([
                     f"Identity: {r['Arn']}",
                     f"Services: {', '.join([s.__name__ for s in services])}",
@@ -488,7 +490,7 @@ class Ingestor(Elements):
                                   f"Only the following services are supported: {', '.join(self.session.get_available_resources())}.")
 
         self.client = SessionClientWrapper(self.session.client(
-            self.__class__.__name__.lower(), endpoint_url=os.environ['ENDPOINT_URL']),
+            self.__class__.__name__.lower(), region_name="eu-west-1", endpoint_url=os.environ['ENDPOINT_URL']),
             console=self.console)
 
         # If no resources to ingest have been specified, assume all
@@ -668,7 +670,7 @@ class Ingestor(Elements):
 
                         try:
                             cm.meta.data["Arn"] = RESOURCES.definition(label).format(
-                                Region=self.session.region_name,
+                                region_name=self.session.region_name,
                                 Account=self.account,
                                 **properties)
 
@@ -1026,7 +1028,7 @@ class EC2(Ingestor):
         'AWS::Ec2::KeyPair',
         'AWS::Ec2::NetworkAcl',
         'AWS::Ec2::NetworkInterface',
-        'AWS::Ec2::PlacementGroup',
+        # 'AWS::Ec2::PlacementGroup',
         'AWS::Ec2::RouteTable',
         'AWS::Ec2::SecurityGroup',
         # 'AWS::Ec2::Snapshot',

@@ -18,6 +18,11 @@ from lib.aws.profile import Profile
 from lib.graph.db import Neo4j
 from lib.util.console import console
 
+from boto3 import Session
+
+from botocore.client import Config
+Session.client.defaults = (None, None, False, None, 'http://localhost:4566', None, None, None, Config(s3={'addressing_style': 'path'}))
+
 SERVICES = list(Ingestor.__subclasses__())
 
 
@@ -110,7 +115,7 @@ def handle_ingest(args):
 
         if args.mfa_device:
 
-            session_token = session.client(service='sts', endpoint_url=os.environ['ENDPOINT_URL']).get_session_token(
+            session_token = session.client(service='sts', endpoint_url="http://localstack:4566").get_session_token(
                 SerialNumber=args.mfa_device,
                 TokenCode=args.mfa_token,
                 DurationSeconds=args.mfa_duration
@@ -130,7 +135,7 @@ def handle_ingest(args):
                                 **dict({"ExternalId": args.role_to_assume_external_id} if args.role_to_assume_external_id else {})
                                 }
 
-            assumed_role = session.client('sts').assume_role(
+            assumed_role = session.client('sts', endpoint_url="http://localstack:4566").assume_role(
                 **assume_role_args)["Credentials"]
 
             session = boto3.session.Session(
